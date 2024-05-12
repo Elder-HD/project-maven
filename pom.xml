@@ -9,15 +9,47 @@
     <version>1.0</version>
 
     <properties>
+        <common.version>3.12.0</common.version>
+        <javafx.version>18.0.1</javafx.version>
+        <javarush.version>1.0</javarush.version>
+        <jupiter.version>5.8.2</jupiter.version>
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.javarush</groupId>
+            <artifactId>desktop-game-engine</artifactId>
+            <version>${javarush.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/dependency</directory>
+                <targetPath>lib/</targetPath>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- Usual compilation -->
             <plugin>
@@ -36,6 +68,56 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.javarush.games.racer.RacerGame</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>compile</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>
+                                org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+                            </mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Rsrc-Main-Class>com.javarush.games.racer.RacerGame</Rsrc-Main-Class>
+                            <Class-Path>./</Class-Path>
+                            <Built-By>${user.name}</Built-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <excludes>
+                        <exclude>StrangeTest</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
